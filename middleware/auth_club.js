@@ -9,11 +9,11 @@ module.exports = (req, res, next) => {
           message: 'Validation failed',
         })
       }else if(club.admins.includes(req.userData.userId)){
-        next();
+        return next();
       }else {
-        return res.status(412).json({
+        return res.status(403).json({
           success: false,
-          message: 'Validation failed',
+          message: 'Not authorised',
         })
       }
 

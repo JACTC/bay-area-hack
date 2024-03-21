@@ -15,6 +15,6 @@ router.post("/login", loginValidation, login);
 //Profile route with register validation
 router.get("/profile/:id", verifyToken, userProfile);
 //all users route with 
-router.get("/users", getUsers );
+router.get("/users", getUsers ); // TEST
 
 module.exports = router;

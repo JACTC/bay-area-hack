@@ -8,7 +8,7 @@ const asyncHandler = require("express-async-handler");
 const createactivity = asyncHandler((req, res, next) => {
     const { name, description, organizers, club } = req.body
 
-    db.activities.create({ name, description, organizers, club }).then((response) => {
+    db.activities.create({ name, description, organizers, club, status:'unverified', users:[] }).then((response) => {
         return res.status(201).json({
             message: 'Activity successfully created!',
             id: response.activityId,
@@ -17,6 +17,27 @@ const createactivity = asyncHandler((req, res, next) => {
         })
     })
 })
+
+const getActivities = asyncHandler((req, res, next) => {
+    try {
+        db.activities.findAll({where:{ club:req.params.id}}).then((response) => {
+            return res.status(200).json({
+                message: 'Activities successfully retrieved!',
+                activities: response,
+                success: true
+            })
+        })
+    } catch (error) {
+        return res.status(500).send({
+            success: false,
+            message: 'An error occurred',
+        })
+    }
+
+})
+
+
+
 
 const createClub = asyncHandler((req, res, next) => {
     const { name, description } = req.body
@@ -54,7 +75,18 @@ const getAllClubs = asyncHandler((req, res, next) => {
     db.clubs.findAll().then((response) => {
         return res.status(200).json({
             message: 'Clubs successfully retrieved!',
-            clubs: response
+            clubs: response,
+            success: true
+        })
+    })
+})
+
+const getAllActivities = asyncHandler((req, res, next) => {
+    db.activities.findAll().then((response) => {
+        return res.status(200).json({
+            message: 'Activities successfully retrieved!',
+            activities: response,
+            success: true
         })
     })
 })
@@ -62,5 +94,7 @@ const getAllClubs = asyncHandler((req, res, next) => {
 module.exports = {
     createactivity,
     createClub,
-    getAllClubs
+    getActivities,
+    getAllClubs,
+    getAllActivities
 }

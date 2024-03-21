@@ -1,13 +1,14 @@
 const db = require('../models')
-const { Op } = require("sequelize");
+const { Op, STRING } = require("sequelize");
+const { use } = require('../routes/clubs');
 
 const activityValidation = async (req, res, next) => {
 
 
     try {
-        const { name, description, organizers, club } = req.body
+        const { name, description, club } = req.body
 
-        if (name, description, organizers, club) {
+        if (name, description, club) {
 
             db.clubs.findOne({ where: { clubId: club } }).then(club => {
 
@@ -18,28 +19,16 @@ const activityValidation = async (req, res, next) => {
                     })
                 }
             })
-
-            var organizerss = []
-
-            organizers.forEach(element => {
-                db.users.findOne({ where: { userId: element } }).then(user => {
-                    if ( user && user.clubs.includes(club)) {
-                        organizerss.push(user.userId)
-                    }
+            console.log(typeof name)
+            if (typeof name == 'string' && typeof description == 'string') {
+                req.body.organizers = req.userData.userId
+                next()
+            } else {
+                return res.status(412).send({
+                    success: false,
+                    message: 'Validation failed',
                 })
-
-            }).then(() => {
-                if (organizerss.length == 0) {
-                    return res.status(412).send({
-                        success: false,
-                        message: 'Validation failed',
-                    })
-                } else {
-                    req.body.organizers = organizerss
-                    next()
-                }
-            })
-
+            }
 
         }
     } catch (error) {

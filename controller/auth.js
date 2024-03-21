@@ -35,7 +35,7 @@ const register = asyncHandler(async (req, res) => {
             await db.users.create(user)
                 .then((response) => {
                     return res.status(201).json({
-                        message: 'user successfully created!',
+                        message: 'User successfully created!',
                         success: true
                     })
                 })
