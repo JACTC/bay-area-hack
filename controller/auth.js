@@ -116,47 +116,9 @@ const login = asyncHandler(async (req, res) => {
         })
 })
 
-const userProfile = asyncHandler(async (req, res, next) => {
-
-    //Destructing id from the req.params
-    const { id } = req.params;
-
-    try {
-        //verifying if the user exist in the database
-        const verifyUser = await db.users.findOne({ where: { userId: id } })
-        if (!verifyUser) {
-            return res.status(403).json({
-                message: "user not found",
-                success: false,
-            })
-        } else {
-            return res.status(200).json({
-                name: verifyUser.name,
-                activities: verifyUser.activities,
-                success: true
-            })
-        }
-    }
-    catch (error) {
-        return res.status(401).json({
-            sucess: false,
-            message: error.message,
-        })
-    }
-});
-
-const getUsers = asyncHandler(async (req, res) => {
-    const users = await db.users.findAll();
-    return res.status(200).json({
-        users: users,
-        success: true
-    })
-})
 
 
 module.exports = {
     register,
-    login,
-    userProfile,
-    getUsers
+    login
 }
