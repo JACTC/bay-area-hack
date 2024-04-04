@@ -117,8 +117,15 @@ const login = asyncHandler(async (req, res) => {
 })
 
 
+const validateToken = asyncHandler(async (req, res) => {
+    res.status(200).json({
+        success: true
+    })
+})
+
 
 module.exports = {
     register,
-    login
+    login,
+    validateToken
 }
