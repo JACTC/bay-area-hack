@@ -27,7 +27,7 @@ app.use('/api/v1/user', user)
 //{force: true}
 db.sequelize.sync({alter: true}).then(() => {
 
-    app.listen(3000, () => {
-        console.log('Listening at http://localhost:3000')
+    app.listen(process.env.port, () => {
+        console.log('Listening at http://localhost:' + process.env.port)
     })
 })
