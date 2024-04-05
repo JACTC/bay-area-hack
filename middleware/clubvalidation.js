@@ -1,6 +1,4 @@
 const db = require('../models')
-const { Op, STRING } = require("sequelize");
-const { use } = require('../routes/clubs');
 
 const activityValidation = async (req, res, next) => {
 
@@ -10,7 +8,7 @@ const activityValidation = async (req, res, next) => {
 
         if (name, description, club) {
 
-            db.clubs.findOne({ where: { clubId: club } }).then(club => {
+            await db.clubs.findOne({ where: { ClubId: club } }).then(club => {
 
                 if (!club) {
                     return res.status(412).send({
@@ -19,7 +17,6 @@ const activityValidation = async (req, res, next) => {
                     })
                 }
             })
-            console.log(typeof name)
             if (typeof name == 'string' && typeof description == 'string') {
                 req.body.organizers = req.userData.userId
                 next()

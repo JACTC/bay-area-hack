@@ -178,9 +178,9 @@ const createClub = asyncHandler((req, res, next) => {
 
 
 const updateClubName = asyncHandler((req, res, next) => {
-    const { clubId, name } = req.body
+    const { clubId: club, name } = req.body
 
-    db.clubs.update({ name }, { where: { ClubId: clubId } }).then((response) => {
+    db.clubs.update({ name }, { where: { ClubId: club } }).then((response) => {
         if (response[0] === 1) {
             return res.status(200).json({
                 message: 'Club name successfully updated!',
@@ -200,9 +200,9 @@ const updateClubName = asyncHandler((req, res, next) => {
 
 
 const updateClubDescription = asyncHandler((req, res, next) => {
-    const { clubId, description } = req.body
+    const { club, description } = req.body
 
-    db.clubs.update({ description }, { where: { ClubId: clubId } }).then((response) => {
+    db.clubs.update({ description }, { where: { ClubId: club } }).then((response) => {
         if (response[0] === 1) {
             return res.status(200).json({
                 message: 'Club description successfully updated!',
@@ -223,10 +223,10 @@ const updateClubDescription = asyncHandler((req, res, next) => {
 
 
 const updateClubAdmins = asyncHandler(async (req, res, next) => {
-    const { clubId, admins } = req.body
+    const { club, admins } = req.body
 
-    const club = await db.clubs.findOne({ where: { ClubId: clubId } })
-    if (!club) {
+    const Club = await db.clubs.findOne({ where: { ClubId: club } })
+    if (!Club) {
         return res.status(412).send({
             success: false,
             message: 'Club not found',
@@ -235,7 +235,7 @@ const updateClubAdmins = asyncHandler(async (req, res, next) => {
 
     const updatedAdmins = [...new Set([...club.admins, ...admins])]
 
-    const response = await db.clubs.update({ admins: updatedAdmins }, { where: { ClubId: clubId } })
+    const response = await db.clubs.update({ admins: updatedAdmins }, { where: { ClubId: club } })
 
     if (response[0] === 1) {
         return res.status(200).json({
@@ -254,17 +254,17 @@ const updateClubAdmins = asyncHandler(async (req, res, next) => {
 
 
 const removeClubAdmins = asyncHandler(async (req, res, next) => {
-    const { clubId, admins } = req.body
+    const { clubId: club, admins } = req.body
 
-    const club = await db.clubs.findOne({ where: { ClubId: clubId } })
-    if (!club) {
+    const Club = await db.clubs.findOne({ where: { ClubId: club } })
+    if (!Club) {
         return res.status(412).send({
             success: false,
             message: 'Club not found',
         })
     }
 
-    const updatedAdmins = club.admins.filter(admin => !admins.includes(admin))
+    const updatedAdmins = Club.admins.filter(admin => !admins.includes(admin))
 
     if (updatedAdmins.length === 0) {
         return res.status(412).send({
@@ -273,7 +273,7 @@ const removeClubAdmins = asyncHandler(async (req, res, next) => {
         })
     }
 
-    const response = await db.clubs.update({ admins: updatedAdmins }, { where: { ClubId: clubId } })
+    const response = await db.clubs.update({ admins: updatedAdmins }, { where: { ClubId: club } })
 
     if (response[0] === 1) {
         return res.status(200).json({

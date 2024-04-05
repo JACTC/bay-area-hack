@@ -2,7 +2,13 @@ const jwt = require("jsonwebtoken");
 const db = require('../models')
 module.exports = (req, res, next) => {
   try {
-    db.activities.findOne({ where: {activityId: req.body.activity}}).then( activity => {
+    if (!req.body.activityId) {
+      return res.status(412).json({
+        success: false,
+        message: 'Validation failed',
+      })
+    }
+    db.activities.findOne({ where: {activityId: req.body.activityId}}).then( activity => {
       if(!activity){
         return res.status(412).json({
           success: false,
