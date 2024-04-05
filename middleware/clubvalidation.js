@@ -76,7 +76,6 @@ const clubValidation = async (req, res, next) => {
 
 
 
-
 module.exports = {
     activityValidation,
     clubValidation

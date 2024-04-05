@@ -8,9 +8,9 @@ const { nameValidation, passwordvalidation } = require("../middleware/uservalida
 const { updateName, updatePassword, deleteAccount, getUsers, userProfile } = require("../controller/user");
 
 
-router.post('/update/name', verifyToken, nameValidation, updateName)
+router.patch('/update/name', verifyToken, nameValidation, updateName)
 
-router.post('/update/password', verifyToken, passwordvalidation, updatePassword)
+router.patch('/update/password', verifyToken, passwordvalidation, updatePassword)
 
 router.delete('/delete', verifyToken, deleteAccount)
 

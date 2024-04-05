@@ -18,11 +18,115 @@ const createactivity = asyncHandler((req, res, next) => {
     })
 })
 
-const getActivities = asyncHandler((req, res, next) => {
-    try {
-        db.activities.findAll({where:{ club:req.params.id}}).then((response) => {
+
+const updateActivityName = asyncHandler((req, res, next) => {
+    const { activityId, name } = req.body
+
+    db.activities.update({ name }, { where: { activityId: activityId } }).then((response) => {
+        if (response[0] === 1) {
             return res.status(200).json({
-                message: 'Activities successfully retrieved!',
+                message: 'Activity name successfully updated!',
+                success: true
+            })
+        } else {
+            return res.status(412).send({
+                success: false,
+                message: 'Activity not found',
+            })
+        }
+    })
+})
+
+
+
+
+const updateActivityDescription = asyncHandler((req, res, next) => {
+    const { activityId, description } = req.body
+
+    db.activities.update({ description }, { where: { activityId: activityId } }).then((response) => {
+        if (response[0] === 1) {
+            return res.status(200).json({
+                message: 'Activity description successfully updated!',
+                success: true
+            })
+        } else {
+            return res.status(412).send({
+                success: false,
+                message: 'Activity not found',
+            })
+        }
+    })
+})
+
+
+
+
+
+const addActivityOrganizers = asyncHandler((req, res, next) => {
+    const { activityId, organizers } = req.body
+
+    db.activities.findOne({ where: { activityId: activityId } }).then((activity) => {
+        if (!activity) {
+            return res.status(412).send({
+                success: false,
+                message: 'Activity not found',
+            })
+        }
+
+        activity.organizers = [...activity.organizers, ...organizers]
+
+        db.activities.update({ organizers: activity.organizers }, { where: { activityId: activityId } }).then((response) => {
+            if (response[0] === 1) {
+                return res.status(200).json({
+                    message: 'Activity organizers successfully updated!',
+                    success: true
+                })
+            } 
+        })
+    })
+})
+
+
+
+
+const removeActivityOrganizers = asyncHandler((req, res, next) => {
+    const { activityId, organizers } = req.body
+
+    db.activities.findOne({ where: { activityId: activityId } }).then((activity) => {
+        if (!activity) {
+            return res.status(412).send({
+                success: false,
+                message: 'Activity not found',
+            })
+        }
+
+        const remainingOrganizers = activity.organizers.filter(organizer => !organizers.includes(organizer))
+
+        if (remainingOrganizers.length === 0) {
+            return res.status(412).send({
+                success: false,
+                message: 'At least one organizer is required',
+            })
+        }
+
+        db.activities.update({ organizers: remainingOrganizers }, { where: { activityId: activityId } }).then((response) => {
+            if (response[0] === 1) {
+                return res.status(200).json({
+                    message: 'Activity organizers successfully updated!',
+                    success: true
+                })
+            } 
+        })
+    })
+})
+
+
+
+const getActivity = asyncHandler((req, res, next) => {
+    try {
+        db.activities.findOne({where:{ club:req.params.id}}).then((response) => {
+            return res.status(200).json({
+                message: 'Activity successfully retrieved!',
                 activities: response,
                 success: true
             })
@@ -71,6 +175,123 @@ const createClub = asyncHandler((req, res, next) => {
 
 })
 
+
+
+const updateClubName = asyncHandler((req, res, next) => {
+    const { clubId, name } = req.body
+
+    db.clubs.update({ name }, { where: { ClubId: clubId } }).then((response) => {
+        if (response[0] === 1) {
+            return res.status(200).json({
+                message: 'Club name successfully updated!',
+                success: true
+            })
+        } else {
+            return res.status(412).send({
+                success: false,
+                message: 'Club not found',
+            })
+        }
+
+    })
+
+})
+
+
+
+const updateClubDescription = asyncHandler((req, res, next) => {
+    const { clubId, description } = req.body
+
+    db.clubs.update({ description }, { where: { ClubId: clubId } }).then((response) => {
+        if (response[0] === 1) {
+            return res.status(200).json({
+                message: 'Club description successfully updated!',
+                success: true
+            })
+        } else {
+            return res.status(412).send({
+                success: false,
+                message: 'Club not found',
+            })
+        }
+
+    })
+
+})
+
+
+
+
+const updateClubAdmins = asyncHandler(async (req, res, next) => {
+    const { clubId, admins } = req.body
+
+    const club = await db.clubs.findOne({ where: { ClubId: clubId } })
+    if (!club) {
+        return res.status(412).send({
+            success: false,
+            message: 'Club not found',
+        })
+    }
+
+    const updatedAdmins = [...new Set([...club.admins, ...admins])]
+
+    const response = await db.clubs.update({ admins: updatedAdmins }, { where: { ClubId: clubId } })
+
+    if (response[0] === 1) {
+        return res.status(200).json({
+            message: 'Club admins successfully updated!',
+            success: true
+        })
+    } else {
+        return res.status(412).send({
+            success: false,
+            message: 'Club not found',
+        })
+    }
+
+})
+
+
+
+const removeClubAdmins = asyncHandler(async (req, res, next) => {
+    const { clubId, admins } = req.body
+
+    const club = await db.clubs.findOne({ where: { ClubId: clubId } })
+    if (!club) {
+        return res.status(412).send({
+            success: false,
+            message: 'Club not found',
+        })
+    }
+
+    const updatedAdmins = club.admins.filter(admin => !admins.includes(admin))
+
+    if (updatedAdmins.length === 0) {
+        return res.status(412).send({
+            success: false,
+            message: 'At least one admin is required',
+        })
+    }
+
+    const response = await db.clubs.update({ admins: updatedAdmins }, { where: { ClubId: clubId } })
+
+    if (response[0] === 1) {
+        return res.status(200).json({
+            message: 'Club admins successfully removed!',
+            success: true
+        })
+    } else {
+        return res.status(412).send({
+            success: false,
+            message: 'Club not found',
+        })
+    }
+
+})
+
+
+
+
 const getAllClubs = asyncHandler((req, res, next) => {
     db.clubs.findAll().then((response) => {
         return res.status(200).json({
@@ -94,7 +315,15 @@ const getAllActivities = asyncHandler((req, res, next) => {
 module.exports = {
     createactivity,
     createClub,
-    getActivities,
+    getActivity,
     getAllClubs,
-    getAllActivities
+    getAllActivities,
+    updateActivityName,
+    updateActivityDescription,
+    updateClubName,
+    updateClubDescription,
+    updateClubAdmins,
+    removeClubAdmins,
+    addActivityOrganizers,
+    removeActivityOrganizers
 }

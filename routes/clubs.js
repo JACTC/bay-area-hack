@@ -1,25 +1,50 @@
 const express = require("express");
 const router = express.Router();
 
+
 const verifyToken = require("../middleware/auth")
 
 const verify_club = require("../middleware/auth_club")
 
+const verify_activity = require("../middleware/auth_activity")
+
+
 const { activityValidation, clubValidation } = require('../middleware/clubvalidation')
 
-const { createactivity, createClub, getAllClubs, getActivities, getAllActivities } = require('../controller/club')
+const { createactivity, createClub, getAllClubs, getActivity, getAllActivities, updateActivityName, updateActivityDescription, updateClubName, updateClubDescription, updateClubAdmins, removeClubAdmins, addActivityOrganizers, removeActivityOrganizers } = require('../controller/club')
 
 
-router.post('/activity/create', verifyToken, verify_club, activityValidation, createactivity)
+
 
 router.post('/register', verifyToken, clubValidation, createClub)
 
-router.get('/clubs', getAllClubs)// TEST
+router.patch('/club/update/name', verifyToken, verify_club, updateClubName)
 
-router.get('/activities/:id', getActivities)
+router.patch('/club/update/description', verifyToken, verify_club, updateClubDescription)
+
+router.patch('/club/update/addAdmins', verifyToken, verify_club, updateClubAdmins)
+
+router.patch('/club/update/removeAdmins', verifyToken, verify_club, removeClubAdmins)
+
+
+
+router.get('/activities/:id', getActivity)
+
+router.post('/activity/create', verifyToken, verify_club, activityValidation, createactivity)
+
+router.patch('/activity/update/name', verifyToken, verify_activity, updateActivityName)
+
+router.patch('/activity/update/description', verifyToken, verify_activity, updateActivityDescription)
+
+router.patch('/activity/addOrganizers', verifyToken, verify_activity, addActivityOrganizers)
+
+router.patch('/activity/removeOrganizers', verifyToken, verify_activity, removeActivityOrganizers)
+
+
 
 router.get('/clubs/activities', getAllActivities) // TEST
 
+router.get('/clubs', getAllClubs)// TEST
 
 
 

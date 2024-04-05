@@ -108,6 +108,7 @@ const userProfile = asyncHandler(async (req, res, next) => {
         } else {
             return res.status(200).json({
                 name: verifyUser.name,
+                clubs: verifyUser.clubs,
                 activities: verifyUser.activities,
                 success: true
             })
