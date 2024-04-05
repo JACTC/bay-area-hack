@@ -8,22 +8,22 @@ module.exports = (req, res, next) => {
         message: 'Validation failed',
       })
     }
-    db.activities.findOne({ where: {activityId: req.body.activityId}}).then( activity => {
-      if(!activity){
+    db.activities.findOne({ where: { activityId: req.body.activityId } }).then(activity => {
+      if (!activity) {
         return res.status(412).json({
           success: false,
           message: 'Validation failed',
         })
-      }else if(activity.organizers.includes(req.userData.userId)){
+      } else if (activity.organizers.includes(req.userData.userId)) {
         return next();
-      }else {
+      } else {
         return res.status(403).json({
           success: false,
           message: 'Not authorised',
         })
       }
 
-  })
+    })
   } catch (err) {
     console.log(err)
     return res.status(401).json({

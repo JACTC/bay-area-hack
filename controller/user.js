@@ -6,6 +6,12 @@ const bcrypt = require('bcryptjs')
 //Importing the express-async-handler package
 const asyncHandler = require("express-async-handler");
 
+const multer = require('multer');
+
+const path = require('path')
+
+const fs = require('fs')
+
 
 const updateName = asyncHandler(async (req, res, next) => {
 
@@ -133,6 +139,67 @@ const getUsers = asyncHandler(async (req, res) => {
 
 
 
+const getAvatar = asyncHandler(async (req, res) => {
+    const avatarName = `${req.params.id}.png`;
+    var avatarPath = path.join(__dirname, '../files', avatarName);
+
+    fs.access(avatarPath, fs.constants.F_OK, (err) => {
+        if (err) {
+            avatarPath = path.join(__dirname, '../files', 'user.png');
+        }
+
+        res.sendFile(avatarPath);
+    });
+});
+
+
+
+
+
+
+const uploadAvatar = asyncHandler(async (req, res) => {
+    const storage = multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, 'files/');
+        },
+        filename: (req, file, cb) => {
+            cb(null, req.userData.userId + path.extname(file.originalname));
+        }
+    });
+
+    const upload = multer({ storage});
+
+    upload.single('avatar')(req, res, async (err) => {
+        if (err) {
+            return res.status(415).json({
+                success: false,
+                message: 'Invalid file type. Only images are allowed.',
+            });
+        }
+
+        try {
+            await fs.promises.rename(
+                path.join(__dirname, `../files/${req.file.filename}`),
+                path.join(__dirname, `../files/${req.userData.userId}.png`)
+            );
+            return res.status(200).json({
+                success: true,
+                message: 'File uploaded successfully',
+            });
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: error.message,
+            });
+        }
+    });
+
+})
+
+
+
+
+
 
 
 module.exports = {
@@ -140,5 +207,7 @@ module.exports = {
     userProfile,
     updatePassword,
     deleteAccount,
-    getUsers
+    getUsers,
+    uploadAvatar,
+    getAvatar
 }

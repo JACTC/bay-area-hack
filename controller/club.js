@@ -8,8 +8,8 @@ const asyncHandler = require("express-async-handler");
 const createactivity = asyncHandler((req, res, next) => {
     const { name, description, organizers, club } = req.body
 
-    db.activities.create({ name, description, organizers, club, status:'unverified', users:[] }).then((response) => {
-        
+    db.activities.create({ name, description, organizers, club, status: 'unverified', users: [] }).then((response) => {
+
         db.clubs.update({ activities: [...club.activities, response.activityId] }, { where: { ClubId: club } }).then(() => {
             return res.status(201).json({
                 message: 'Activity successfully created!',
@@ -84,7 +84,7 @@ const addActivityOrganizers = asyncHandler((req, res, next) => {
                     message: 'Activity organizers successfully updated!',
                     success: true
                 })
-            } 
+            }
         })
     })
 })
@@ -118,7 +118,7 @@ const removeActivityOrganizers = asyncHandler((req, res, next) => {
                     message: 'Activity organizers successfully updated!',
                     success: true
                 })
-            } 
+            }
         })
     })
 })
@@ -127,7 +127,7 @@ const removeActivityOrganizers = asyncHandler((req, res, next) => {
 
 const getActivity = asyncHandler((req, res, next) => {
     try {
-        db.activities.findOne({where:{ club:req.params.id}}).then((response) => {
+        db.activities.findOne({ where: { club: req.params.id } }).then((response) => {
             return res.status(200).json({
                 message: 'Activity successfully retrieved!',
                 activities: response,
@@ -151,17 +151,17 @@ const createClub = asyncHandler((req, res, next) => {
 
     const admins = [req.userData.userId]
 
-    db.clubs.create({ name, description, admins, status: 'unverified', activities:[] }).then((response) => {
-        
+    db.clubs.create({ name, description, admins, status: 'unverified', activities: [] }).then((response) => {
+
         db.users.findOne({ where: { userId: req.userData.userId } }).then((user) => {
-            
+
             if (!user) {
                 return res.status(412).send({
                     success: false,
                     message: 'Validation failed',
                 })
             }
-            
+
             var clb = user.clubs
             clb.push(response.ClubId)
             console.log(clb)
@@ -170,8 +170,8 @@ const createClub = asyncHandler((req, res, next) => {
                     message: 'Club successfully created!',
                     club: response.clubId,
                     success: true
+                })
             })
-        })
 
         })
     })
