@@ -9,11 +9,14 @@ const createactivity = asyncHandler((req, res, next) => {
     const { name, description, organizers, club } = req.body
 
     db.activities.create({ name, description, organizers, club, status:'unverified', users:[] }).then((response) => {
-        return res.status(201).json({
-            message: 'Activity successfully created!',
-            id: response.activityId,
-            club: response.club,
-            success: true
+        
+        db.clubs.update({ activities: [...club.activities, response.activityId] }, { where: { ClubId: club } }).then(() => {
+            return res.status(201).json({
+                message: 'Activity successfully created!',
+                id: response.activityId,
+                club: response.club,
+                success: true
+            })
         })
     })
 })
@@ -291,6 +294,30 @@ const removeClubAdmins = asyncHandler(async (req, res, next) => {
 
 
 
+const getClub = asyncHandler(async (req, res, next) => {
+    const { club } = req.params
+
+    const Club = await db.clubs.findOne({ where: { ClubId: club } })
+    if (!Club) {
+        return res.status(412).send({
+            success: false,
+            message: 'Club not found',
+        })
+    }
+
+    return res.status(200).json({
+        message: 'Club successfully retrieved!',
+        clubId: Club.ClubId,
+        name: Club.name,
+        description: Club.description,
+        admins: Club.admins,
+        activities: Club.activities,
+        success: true
+    })
+})
+
+
+
 
 const getAllClubs = asyncHandler((req, res, next) => {
     db.clubs.findAll().then((response) => {
@@ -325,5 +352,6 @@ module.exports = {
     updateClubAdmins,
     removeClubAdmins,
     addActivityOrganizers,
-    removeActivityOrganizers
+    removeActivityOrganizers,
+    getClub
 }

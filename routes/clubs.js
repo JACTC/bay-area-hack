@@ -11,12 +11,14 @@ const verify_activity = require("../middleware/auth_activity")
 
 const { activityValidation, clubValidation } = require('../middleware/clubvalidation')
 
-const { createactivity, createClub, getAllClubs, getActivity, getAllActivities, updateActivityName, updateActivityDescription, updateClubName, updateClubDescription, updateClubAdmins, removeClubAdmins, addActivityOrganizers, removeActivityOrganizers } = require('../controller/club')
+const { createactivity, createClub, getAllClubs, getActivity, getAllActivities, updateActivityName, updateActivityDescription, updateClubName, updateClubDescription, updateClubAdmins, removeClubAdmins, addActivityOrganizers, removeActivityOrganizers, getClub } = require('../controller/club')
 
 
 
 
 router.post('/register', verifyToken, clubValidation, createClub)
+
+router.get('/club/:id', getClub)
 
 router.patch('/club/update/name', verifyToken, verify_club, updateClubName)
 
