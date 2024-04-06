@@ -1,9 +1,9 @@
 const express = require('express')
-//Imprtong the user model 
+
 const db = require('../models')
-//Importing the bcrypt package
+
 const bcrypt = require('bcryptjs')
-//Importing the express-async-handler package
+
 const asyncHandler = require("express-async-handler");
 
 const multer = require('multer');
@@ -36,7 +36,6 @@ const updateName = asyncHandler(async (req, res, next) => {
 
 })
 
-//update the password
 
 const updatePassword = asyncHandler(async (req, res, next) => {
     try {
@@ -96,15 +95,13 @@ const deleteAccount = asyncHandler(async (req, res, next) => {
 
 
 
-
-
 const userProfile = asyncHandler(async (req, res, next) => {
 
-    //Destructing id from the req.params
+
     const { id } = req.params;
 
     try {
-        //verifying if the user exist in the database
+
         const verifyUser = await db.users.findOne({ where: { userId: id } })
         if (!verifyUser) {
             return res.status(403).json({
@@ -151,9 +148,6 @@ const getAvatar = asyncHandler(async (req, res) => {
         res.sendFile(avatarPath);
     });
 });
-
-
-
 
 
 

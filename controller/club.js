@@ -295,9 +295,9 @@ const removeClubAdmins = asyncHandler(async (req, res, next) => {
 
 
 const getClub = asyncHandler(async (req, res, next) => {
-    const { club } = req.params
+    const { id } = req.params
 
-    const Club = await db.clubs.findOne({ where: { ClubId: club } })
+    const Club = await db.clubs.findOne({ where: { ClubId: id } })
     if (!Club) {
         return res.status(412).send({
             success: false,
