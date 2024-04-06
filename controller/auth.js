@@ -28,7 +28,8 @@ const register = asyncHandler(async (req, res) => {
                 password: hash,
                 role: 'user',
                 status: 'unverified',
-                clubs: []
+                clubs: [],
+                activities: []
             }
 
             await db.users.create(user)

@@ -23,6 +23,9 @@ module.exports = (sequelize, DataTypes) => {
       clubs: {
         type: DataTypes.JSON
       },
+      activities: {
+        type: DataTypes.JSON
+      },
       userId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,

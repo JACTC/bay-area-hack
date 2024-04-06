@@ -16,7 +16,7 @@ const createactivity = asyncHandler((req, res, next) => {
 
     db.activities.create({ name, description, organizers, club, status: 'unverified', users: [] }).then((response) => {
 
-        db.clubs.update({ activities: [...club.activities, response.activityId] }, { where: { ClubId: club } }).then(() => {
+        db.clubs.update({ activities: club.activities.push(response.activityId) }, { where: { ClubId: club } }).then(() => {
             return res.status(201).json({
                 message: 'Activity successfully created!',
                 id: response.activityId,
@@ -24,6 +24,9 @@ const createactivity = asyncHandler((req, res, next) => {
                 success: true
             })
         })
+        //db.users.update({ activities: [...club.activities, response.activityId] }, { where: { userId: organizers } }).then(() => {
+            
+        //})
     })
 })
 
