@@ -4,6 +4,12 @@ const db = require('../models')
 //Importing the express-async-handler package
 const asyncHandler = require("express-async-handler");
 
+const multer = require('multer');
+
+const path = require('path')
+
+const fs = require('fs')
+
 
 const createactivity = asyncHandler((req, res, next) => {
     const { name, description, organizers, club } = req.body
@@ -339,6 +345,64 @@ const getAllActivities = asyncHandler((req, res, next) => {
     })
 })
 
+const getLogo = asyncHandler(async (req, res) => {
+    const avatarName = `${req.params.id}.png`;
+    var avatarPath = path.join(__dirname, '../files/clubs/logos', avatarName);
+
+    fs.access(avatarPath, fs.constants.F_OK, (err) => {
+        if (err) {
+            avatarPath = path.join(__dirname, '../files/clubs/logos', 'user.png');
+        }
+
+        res.sendFile(avatarPath);
+    });
+});
+
+
+
+const uploadLogo = asyncHandler(async (req, res) => {
+    const storage = multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, 'files/clubs/logos');
+        },
+        filename: (req, file, cb) => {
+            cb(null, req.userData.userId + path.extname(file.originalname));
+        }
+    });
+
+    const upload = multer({ storage});
+
+    upload.single('avatar')(req, res, async (err) => {
+        if (err) {
+            return res.status(415).json({
+                success: false,
+                message: 'Invalid file type. Only images are allowed.',
+            });
+        }
+
+        try {
+            await fs.promises.rename(
+                path.join(__dirname, `../files/clubs/logos/${req.file.filename}`),
+                path.join(__dirname, `../files/clubs/logos/${req.userData.userId}.png`)
+            );
+            return res.status(200).json({
+                success: true,
+                message: 'File uploaded successfully',
+            });
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: error.message,
+            });
+        }
+    });
+
+})
+
+
+
+
+
 module.exports = {
     createactivity,
     createClub,
@@ -353,5 +417,7 @@ module.exports = {
     removeClubAdmins,
     addActivityOrganizers,
     removeActivityOrganizers,
-    getClub
+    getClub,
+    getLogo,
+    uploadLogo
 }
