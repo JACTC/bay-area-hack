@@ -21,7 +21,7 @@ router.get('/users', getUsers) // TEST REMOVE BEFORE PRODUCTION!
 
 router.get('/profile/:id', userProfile)
 
-router.post('/update/avatar', verifyToken, uploadAvatar)
+router.patch('/update/avatar', verifyToken, uploadAvatar)
 
 router.get('/avatar/:id', getAvatar)
 
