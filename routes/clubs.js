@@ -22,7 +22,7 @@ router.get('/club/:id', getClub)
 
 router.get('/club/logo/:id', getLogo)
 
-router.patch('/club/update/logo', verifyToken, verify_club, uploadLogo)
+router.patch('/club/update/logo/:id', verifyToken,(req, res, next)=>{req.body.club = req.params.id; next()} ,verify_club, uploadLogo)
 
 router.patch('/club/update/name', verifyToken, verify_club, updateClubName)
 
