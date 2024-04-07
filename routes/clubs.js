@@ -11,7 +11,7 @@ const verify_activity = require("../middleware/auth_activity")
 
 const { activityValidation, clubValidation } = require('../middleware/clubvalidation')
 
-const { createactivity, createClub, getAllClubs, getActivity, getAllActivities, updateActivityName, updateActivityDescription, updateClubName, updateClubDescription, updateClubAdmins, removeClubAdmins, addActivityOrganizers, removeActivityOrganizers, getClub, uploadLogo, getLogo } = require('../controller/club')
+const { createactivity, createClub, getRandomClubs, getActivity, getAllActivities, updateActivityName, updateActivityDescription, updateClubName, updateClubDescription, updateClubAdmins, removeClubAdmins, addActivityOrganizers, removeActivityOrganizers, getClub, uploadLogo, getLogo } = require('../controller/club')
 
 
 
@@ -50,7 +50,7 @@ router.patch('/activity/removeOrganizers', verifyToken, verify_activity, removeA
 
 router.get('/clubs/activities', getAllActivities) // TEST
 
-router.get('/clubs', getAllClubs)// TEST
+router.get('/clubs', getRandomClubs)// TEST
 
 
 

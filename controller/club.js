@@ -342,14 +342,39 @@ const getClub = asyncHandler(async (req, res, next) => {
     })
 })
 
-const getAllClubs = asyncHandler((req, res, next) => {
-    db.clubs.findAll().then((response) => {
+const getRandomClubs = asyncHandler((req, res, next) => {
+
+    const clubs_promise = db.clubs.findAll();
+
+    clubs_promise.then((clubs) => {
+        if (clubs.length < 3) {
+            return res.status(200).json({
+                message: 'Clubs successfully retrieved!',
+                clubs: clubs,
+                success: true
+            })
+        }
+
+        let randomClubs = [];
+        while (randomClubs.length < 3) {
+            const randomIdx = Math.floor(Math.random() * clubs.length);
+            const club = clubs[randomIdx];
+
+            if (!randomClubs.some(c => c.ClubId === club.ClubId)) {
+                randomClubs.push(club);
+            }
+        }
+
         return res.status(200).json({
             message: 'Clubs successfully retrieved!',
-            clubs: response,
+            clubs: randomClubs,
             success: true
         })
     })
+
+
+
+
 })
 
 const getAllActivities = asyncHandler((req, res, next) => {
@@ -422,7 +447,7 @@ module.exports = {
     createactivity,
     createClub,
     getActivity,
-    getAllClubs,
+    getRandomClubs,
     getAllActivities,
     updateActivityName,
     updateActivityDescription,
