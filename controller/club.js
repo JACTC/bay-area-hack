@@ -1,7 +1,7 @@
 const express = require('express')
 
 const db = require('../models')
-//Importing the express-async-handler package
+
 const asyncHandler = require("express-async-handler");
 
 const multer = require('multer');
@@ -9,6 +9,7 @@ const multer = require('multer');
 const path = require('path')
 
 const fs = require('fs')
+
 
 
 const createactivity = asyncHandler(async (req, res, next) => {
@@ -43,7 +44,6 @@ const createactivity = asyncHandler(async (req, res, next) => {
 
 })
 
-
 const updateActivityName = asyncHandler((req, res, next) => {
     const { activityId, name } = req.body
 
@@ -62,9 +62,6 @@ const updateActivityName = asyncHandler((req, res, next) => {
     })
 })
 
-
-
-
 const updateActivityDescription = asyncHandler((req, res, next) => {
     const { activityId, description } = req.body
 
@@ -82,10 +79,6 @@ const updateActivityDescription = asyncHandler((req, res, next) => {
         }
     })
 })
-
-
-
-
 
 const addActivityOrganizers = asyncHandler(async (req, res, next) => {
     const { activityId, organizers } = req.body
@@ -115,9 +108,6 @@ const addActivityOrganizers = asyncHandler(async (req, res, next) => {
         success: true
     })
 })
-
-
-
 
 const removeActivityOrganizers = asyncHandler(async (req, res, next) => {
     const { activityId, organizers } = req.body
@@ -158,8 +148,6 @@ const removeActivityOrganizers = asyncHandler(async (req, res, next) => {
 
 })
 
-
-
 const getActivity = asyncHandler(async (req, res, next) => {
     try {
         const activity = await db.activities.findOne({ where: { club: req.params.id } })
@@ -181,9 +169,6 @@ const getActivity = asyncHandler(async (req, res, next) => {
     }
 
 })
-
-
-
 
 const createClub = asyncHandler(async (req, res, next) => {
     const { name, description } = req.body
@@ -216,8 +201,6 @@ const createClub = asyncHandler(async (req, res, next) => {
 
 })
 
-
-
 const updateClubName = asyncHandler((req, res, next) => {
     const { clubId: club, name } = req.body
 
@@ -238,8 +221,6 @@ const updateClubName = asyncHandler((req, res, next) => {
 
 })
 
-
-
 const updateClubDescription = asyncHandler((req, res, next) => {
     const { club, description } = req.body
 
@@ -259,9 +240,6 @@ const updateClubDescription = asyncHandler((req, res, next) => {
     })
 
 })
-
-
-
 
 const updateClubAdmins = asyncHandler(async (req, res, next) => {
     const { club, admins } = req.body
@@ -288,8 +266,6 @@ const updateClubAdmins = asyncHandler(async (req, res, next) => {
     })
 
 })
-
-
 
 const removeClubAdmins = asyncHandler(async (req, res, next) => {
     const { clubId: club, admins } = req.body
@@ -327,8 +303,6 @@ const removeClubAdmins = asyncHandler(async (req, res, next) => {
 
 })
 
-
-
 const getClub = asyncHandler(async (req, res, next) => {
     const { id } = req.params
     if (!id) {
@@ -353,12 +327,10 @@ const getClub = asyncHandler(async (req, res, next) => {
         description: Club.description,
         admins: Club.admins,
         activities: Club.activities,
+        createdAt: Club.createdAt,
         success: true
     })
 })
-
-
-
 
 const getAllClubs = asyncHandler((req, res, next) => {
     db.clubs.findAll().then((response) => {
@@ -394,7 +366,6 @@ const getLogo = asyncHandler(async (req, res) => {
 });
 
 
-
 const uploadLogo = asyncHandler(async (req, res) => {
     const storage = multer.diskStorage({
         destination: (req, file, cb) => {
@@ -407,7 +378,7 @@ const uploadLogo = asyncHandler(async (req, res) => {
 
     const upload = multer({ storage });
 
-    upload.single('avatar')(req, res, async (err) => {
+    upload.single('logo')(req, res, async (err) => {
         if (err) {
             return res.status(415).json({
                 success: false,
@@ -433,8 +404,6 @@ const uploadLogo = asyncHandler(async (req, res) => {
     });
 
 })
-
-
 
 
 
