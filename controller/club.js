@@ -391,7 +391,6 @@ const uploadLogo = asyncHandler(async (req, res) => {
     upload.single('logo')(req, res, async (err) => {
         if (err) {
             console.log(err)
-            console.log(req)
             return res.status(415).json({
                 success: false,
                 message: 'Invalid file type. Only images are allowed.',
