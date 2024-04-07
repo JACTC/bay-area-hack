@@ -165,7 +165,11 @@ const getActivity = asyncHandler((req, res, next) => {
         db.activities.findOne({ where: { club: req.params.id } }).then((response) => {
             return res.status(200).json({
                 message: 'Activity successfully retrieved!',
-                activities: response,
+                name: response.name,
+                description: response.description,
+                organizers: response.organizers,
+                club: response.club,
+                users: response.users,
                 success: true
             })
         })
@@ -270,21 +274,18 @@ const updateClubAdmins = asyncHandler(async (req, res, next) => {
         })
     }
 
-    const updatedAdmins = [...new Set([...club.admins, ...admins])]
-
-    const response = await db.clubs.update({ admins: updatedAdmins }, { where: { ClubId: club } })
-
-    if (response[0] === 1) {
-        return res.status(200).json({
-            message: 'Club admins successfully updated!',
-            success: true
-        })
-    } else {
-        return res.status(412).send({
-            success: false,
-            message: 'Club not found',
-        })
+    for (const admin of admins) {
+        const user = await db.users.findOne({ where: { userId: admin } })
+        if (!user || user.clubs.includes(club) || Club.admins.includes(admin)) {
+            continue
+        }
+        user.update({ clubs: [...user.clubs, club] })
+        Club.update({ admins: [...Club.admins, admin] })
     }
+    return res.status(200).json({
+        message: 'Club admins successfully updated!',
+        success: true
+    })
 
 })
 
@@ -310,19 +311,19 @@ const removeClubAdmins = asyncHandler(async (req, res, next) => {
         })
     }
 
-    const response = await db.clubs.update({ admins: updatedAdmins }, { where: { ClubId: club } })
-
-    if (response[0] === 1) {
-        return res.status(200).json({
-            message: 'Club admins successfully removed!',
-            success: true
-        })
-    } else {
-        return res.status(412).send({
-            success: false,
-            message: 'Club not found',
-        })
+    for (const admin of admins) {
+        const user = await db.users.findOne({ where: { userId: admin } })
+        if (!user || !user.clubs.includes(club) || !Club.admins.includes(admin)) {
+            continue
+        }
+        user.update({ clubs: user.clubs.filter(club => club !== club) })
+        Club.update({ admins: Club.admins.filter(admin => admin !== admin) })
     }
+
+    return res.status(200).json({
+        message: 'Club admins successfully removed!',
+        success: true
+    })
 
 })
 
