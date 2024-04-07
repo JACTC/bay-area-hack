@@ -150,18 +150,28 @@ const removeActivityOrganizers = asyncHandler(async (req, res, next) => {
 
 const getActivity = asyncHandler(async (req, res, next) => {
     try {
-        const activity = await db.activities.findOne({ where: { club: req.params.id } })
+
+        const activity = await db.activities.findOne({ where: { activityId: req.params.id } })
+
+
+        if (! await activity) {
+            return res.status(412).send({
+                success: false,
+                message: 'Activity not found',
+            })
+        }
             return res.status(200).json({
                 message: 'Activity successfully retrieved!',
-                name: activity.name,
-                description: activity.description,
-                organizers: activity.organizers,
-                club: activity.club,
-                users: activity.users,
+                name:  activity.name,
+                description:  activity.description,
+                organizers:  activity.organizers,
+                club:  activity.club,
+                users:  activity.users,
                 success: true
             })
 
     } catch (error) {
+        console.log(error)
         return res.status(500).send({
             success: false,
             message: 'An error occurred',
@@ -202,7 +212,7 @@ const createClub = asyncHandler(async (req, res, next) => {
 })
 
 const updateClubName = asyncHandler((req, res, next) => {
-    const { clubId: club, name } = req.body
+    const { club, name } = req.body
 
     db.clubs.update({ name }, { where: { ClubId: club } }).then((response) => {
         if (response[0] === 1) {
