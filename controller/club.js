@@ -11,23 +11,36 @@ const path = require('path')
 const fs = require('fs')
 
 
-const createactivity = asyncHandler((req, res, next) => {
+const createactivity = asyncHandler(async (req, res, next) => {
     const { name, description, organizers, club } = req.body
 
-    db.activities.create({ name, description, organizers, club, status: 'unverified', users: [] }).then((response) => {
+    const Club = await db.clubs.findOne({ where: { ClubId: club } })
+    const user = await db.users.findOne({ where: { userId: organizers } })
 
-        db.clubs.update({ activities: club.activities.push(response.activityId) }, { where: { ClubId: club } }).then(() => {
-            return res.status(201).json({
-                message: 'Activity successfully created!',
-                id: response.activityId,
-                club: response.club,
-                success: true
-            })
+    if (!Club || !user) {
+        return res.status(412).send({
+            success: false,
+            message: 'Organizer or Club not found',
         })
-        //db.users.update({ activities: [...club.activities, response.activityId] }, { where: { userId: organizers } }).then(() => {
-            
-        //})
+    }
+
+    db.activities.create({ name, description, organizers, club, status: 'unverified', users: [] }).then((response) => {
+        Club.update({
+            activities: [...Club.activities, response.activityId]
+        })
+        user.update({
+            activities: [...user.activities, response.activityId]
+        })
+
+        return res.status(201).json({
+            message: 'Activity successfully created!',
+            id: response.activityId,
+            club: response.club,
+            success: true
+
+        })
     })
+
 })
 
 
@@ -74,62 +87,75 @@ const updateActivityDescription = asyncHandler((req, res, next) => {
 
 
 
-const addActivityOrganizers = asyncHandler((req, res, next) => {
+const addActivityOrganizers = asyncHandler(async (req, res, next) => {
     const { activityId, organizers } = req.body
 
-    db.activities.findOne({ where: { activityId: activityId } }).then((activity) => {
-        if (!activity) {
-            return res.status(412).send({
-                success: false,
-                message: 'Activity not found',
-            })
+    const activity = await db.activities.findOne({ where: { activityId: activityId } })
+    if (!activity) {
+        return res.status(412).send({
+            success: false,
+            message: 'Activity not found',
+        })
+    }
+
+
+    for (const organizer of organizers) {
+        const user = await db.users.findOne({ where: { userId: organizer } })
+        if (!user || user.activities.includes(activityId) || activity.organizers.includes(organizer)) {
+            continue
         }
 
-        activity.organizers = [...activity.organizers, ...organizers]
+        user.update({ activities: [...user.activities, activityId] })
+        activity.update({ organizers: [...activity.organizers, organizer] })
+    }
 
-        db.activities.update({ organizers: activity.organizers }, { where: { activityId: activityId } }).then((response) => {
-            if (response[0] === 1) {
-                return res.status(200).json({
-                    message: 'Activity organizers successfully updated!',
-                    success: true
-                })
-            }
-        })
+
+    return res.status(200).json({
+        message: 'Activity organizers successfully updated!',
+        success: true
     })
 })
 
 
 
 
-const removeActivityOrganizers = asyncHandler((req, res, next) => {
+const removeActivityOrganizers = asyncHandler(async (req, res, next) => {
     const { activityId, organizers } = req.body
 
-    db.activities.findOne({ where: { activityId: activityId } }).then((activity) => {
-        if (!activity) {
-            return res.status(412).send({
-                success: false,
-                message: 'Activity not found',
-            })
-        }
-
-        const remainingOrganizers = activity.organizers.filter(organizer => !organizers.includes(organizer))
-
-        if (remainingOrganizers.length === 0) {
-            return res.status(412).send({
-                success: false,
-                message: 'At least one organizer is required',
-            })
-        }
-
-        db.activities.update({ organizers: remainingOrganizers }, { where: { activityId: activityId } }).then((response) => {
-            if (response[0] === 1) {
-                return res.status(200).json({
-                    message: 'Activity organizers successfully updated!',
-                    success: true
-                })
-            }
+    const activity = await db.activities.findOne({ where: { activityId: activityId } })
+    if (!activity) {
+        return res.status(412).send({
+            success: false,
+            message: 'Activity not found',
         })
+    }
+
+    const remainingOrganizers = activity.organizers.filter(organizer => !organizers.includes(organizer))
+
+    if (remainingOrganizers.length === 0) {
+        return res.status(412).send({
+            success: false,
+            message: 'At least one organizer is required',
+        })
+    }
+
+    for (const organizer of organizers) {
+        const user = await db.users.findOne({ where: { userId: organizer } })
+        if (!user || !user.activities.includes(activityId) || !activity.organizers.includes(organizer)) {
+            continue
+        }
+
+        user.update({ activities: user.activities.filter(activity => activity !== activityId) })
+        activity.update({ organizers: activity.organizers.filter(organizer => organizer !== organizer) })
+    }
+
+
+    return res.status(200).json({
+        message: 'Activity organizers successfully updated!',
+        success: true
     })
+
+
 })
 
 
@@ -155,7 +181,7 @@ const getActivity = asyncHandler((req, res, next) => {
 
 
 
-const createClub = asyncHandler((req, res, next) => {
+const createClub = asyncHandler(async (req, res, next) => {
     const { name, description } = req.body
 
     const admins = [req.userData.userId]
@@ -173,11 +199,10 @@ const createClub = asyncHandler((req, res, next) => {
 
             var clb = user.clubs
             clb.push(response.ClubId)
-            console.log(clb)
             db.users.update({ clubs: clb }, { where: { userId: req.userData.userId } }).then(() => {
                 return res.status(201).json({
                     message: 'Club successfully created!',
-                    club: response.clubId,
+                    club: response.ClubId,
                     success: true
                 })
             })
@@ -305,6 +330,12 @@ const removeClubAdmins = asyncHandler(async (req, res, next) => {
 
 const getClub = asyncHandler(async (req, res, next) => {
     const { id } = req.params
+    if (!id) {
+        return res.status(412).send({
+            success: false,
+            message: 'Club not found',
+        })
+    }
 
     const Club = await db.clubs.findOne({ where: { ClubId: id } })
     if (!Club) {
@@ -373,7 +404,7 @@ const uploadLogo = asyncHandler(async (req, res) => {
         }
     });
 
-    const upload = multer({ storage});
+    const upload = multer({ storage });
 
     upload.single('avatar')(req, res, async (err) => {
         if (err) {
