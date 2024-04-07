@@ -160,19 +160,19 @@ const removeActivityOrganizers = asyncHandler(async (req, res, next) => {
 
 
 
-const getActivity = asyncHandler((req, res, next) => {
+const getActivity = asyncHandler(async (req, res, next) => {
     try {
-        db.activities.findOne({ where: { club: req.params.id } }).then((response) => {
+        const activity = await db.activities.findOne({ where: { club: req.params.id } })
             return res.status(200).json({
                 message: 'Activity successfully retrieved!',
-                name: response.name,
-                description: response.description,
-                organizers: response.organizers,
-                club: response.club,
-                users: response.users,
+                name: activity.name,
+                description: activity.description,
+                organizers: activity.organizers,
+                club: activity.club,
+                users: activity.users,
                 success: true
             })
-        })
+
     } catch (error) {
         return res.status(500).send({
             success: false,
