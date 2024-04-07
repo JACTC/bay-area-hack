@@ -48,7 +48,7 @@ router.patch('/activity/removeOrganizers', verifyToken, verify_activity, removeA
 
 
 
-router.get('/clubs/activities', getAllActivities) // TEST
+router.get('/clubs/activities', getAllActivities)
 
 router.get('/clubs', getRandomClubs)// TEST
 
