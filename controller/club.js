@@ -382,7 +382,7 @@ const uploadLogo = asyncHandler(async (req, res) => {
             cb(null, 'files/clubs/logos');
         },
         filename: (req, file, cb) => {
-            cb(null, req.userData.userId + path.extname(file.originalname));
+            cb(null, req.params.id + path.extname(file.originalname));
         }
     });
 
@@ -401,7 +401,7 @@ const uploadLogo = asyncHandler(async (req, res) => {
         try {
             await fs.promises.rename(
                 path.join(__dirname, `../files/clubs/logos/${req.file.filename}`),
-                path.join(__dirname, `../files/clubs/logos/${req.userData.userId}.png`)
+                path.join(__dirname, `../files/clubs/logos/${req.params.id}.png`)
             );
             return res.status(200).json({
                 success: true,
