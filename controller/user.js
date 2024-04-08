@@ -142,11 +142,21 @@ const getAvatar = asyncHandler(async (req, res) => {
     const avatarName = `${req.params.id}.png`;
     var avatarPath = path.join(__dirname, '../files', avatarName);
 
+    
+    if (!avatarName || avatarName.indexOf('..') > -1) {
+        res.status(403).send({
+            success: false,
+            message: 'Unauthorized',
+        })
+    }
+
+
     fs.access(avatarPath, fs.constants.F_OK, (err) => {
         if (err) {
             avatarPath = path.join(__dirname, '../files', 'user.png');
         }
 
+    
         res.sendFile(avatarPath);
     });
 });

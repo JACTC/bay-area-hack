@@ -372,9 +372,6 @@ const getRandomClubs = asyncHandler((req, res, next) => {
         })
     })
 
-
-
-
 })
 
 const getAllActivities = asyncHandler((req, res, next) => {
@@ -389,6 +386,14 @@ const getAllActivities = asyncHandler((req, res, next) => {
 
 const getLogo = asyncHandler(async (req, res) => {
     const avatarName = `${req.params.id}.png`;
+
+    if (!avatarName || avatarName.indexOf('..') > -1) {
+        res.status(403).send({
+            success: false,
+            message: 'Unauthorized',
+        })
+    }
+
     var avatarPath = path.join(__dirname, '../files/clubs/logos', avatarName);
 
     fs.access(avatarPath, fs.constants.F_OK, (err) => {

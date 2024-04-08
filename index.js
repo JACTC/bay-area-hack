@@ -13,7 +13,7 @@ const auth = require('./routes/auth')
 const clubs = require('./routes/clubs')
 const user = require('./routes/user')
 
-
+app.disable('x-powered-by');
 
 app.use(cors())
 app.use(express.json())
