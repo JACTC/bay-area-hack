@@ -4,8 +4,6 @@ const db = require('../models')
 
 const bcrypt = require('bcryptjs')
 
-const crypto = require('crypto')
-
 const asyncHandler = require("express-async-handler");
 
 const multer = require('multer');
@@ -51,7 +49,7 @@ const updatePassword = asyncHandler(async (req, res, next) => {
         }
 
         const { password } = req.body
-        const hash = await bcrypt.hash(password, crypto.randomBytes(32).toString('hex'))
+        const hash = await bcrypt.hash(password, 10)
 
         await user.update({ password: hash }, { where: { userId: req.userData.userId } })
         

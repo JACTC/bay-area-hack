@@ -16,12 +16,12 @@ const register = asyncHandler(async (req, res) => {
 
     const verifyEmail = await db.users.findOne({ where: { email: email } })
     try {
-        if (verifyEmail || '+' in email) {
+        if (verifyEmail) {
             return res.status(403).json({
                 message: "Email already used or invalid email"
             })
         } else {
-            const hash = await bcrypt.hash(req.body.password, crypto.randomBytes(32).toString('hex'))
+            const hash = await bcrypt.hash(req.body.password, 10)
 
             const user = {
                 name: fullName,
@@ -48,6 +48,7 @@ const register = asyncHandler(async (req, res) => {
         }
 
     } catch (error) {
+        console.log(error)
         return res.status(412).send({
             success: false,
             message: error.message
