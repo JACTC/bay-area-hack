@@ -3,6 +3,8 @@ const express = require('express')
 const jwt = require('jsonwebtoken')
 //Importing the bcrypt package
 const bcrypt = require('bcryptjs')
+
+const crypto = require('crypto')
 //Imprtong the user model 
 const db = require('../models')
 //Importing the express-async-handler package
@@ -14,13 +16,12 @@ const register = asyncHandler(async (req, res) => {
 
     const verifyEmail = await db.users.findOne({ where: { email: email } })
     try {
-        if (verifyEmail) {
+        if (verifyEmail || '+' in email) {
             return res.status(403).json({
-                message: "Email already used"
+                message: "Email already used or invalid email"
             })
         } else {
-
-            const hash = await bcrypt.hash(req.body.password, 10)
+            const hash = await bcrypt.hash(req.body.password, crypto.randomBytes(32).toString('hex'))
 
             const user = {
                 name: fullName,

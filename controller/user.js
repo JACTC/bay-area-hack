@@ -4,6 +4,8 @@ const db = require('../models')
 
 const bcrypt = require('bcryptjs')
 
+const crypto = require('crypto')
+
 const asyncHandler = require("express-async-handler");
 
 const multer = require('multer');
@@ -39,23 +41,25 @@ const updateName = asyncHandler(async (req, res, next) => {
 
 const updatePassword = asyncHandler(async (req, res, next) => {
     try {
-        const { password } = req.body
-        const hash = await bcrypt.hash(password, 10)
+        const user = await db.users.findOne({ where: { userId: req.userData.userId } })
 
-        await db.users.update({ password: hash }, { where: { userId: req.userData.userId } })
-            .then((user) => {
-                if (user[0] = 0) {
-                    return res.status(404).send({
-                        success: false,
-                        message: 'No user found',
-                    })
-                } else {
-                    return res.status(201).json({
-                        message: 'Password successfully updated!',
-                        success: true
-                    })
-                }
+        if (!user) {
+            return res.status(404).send({
+                success: false,
+                message: 'No user found',
             })
+        }
+
+        const { password } = req.body
+        const hash = await bcrypt.hash(password, crypto.randomBytes(32).toString('hex'))
+
+        await user.update({ password: hash }, { where: { userId: req.userData.userId } })
+        
+        return res.status(201).json({
+            message: 'Password successfully updated!',
+            success: true
+        })
+
     } catch (error) {
         return res
             .status(500).json({
@@ -161,7 +165,7 @@ const uploadAvatar = asyncHandler(async (req, res) => {
         }
     });
 
-    const upload = multer({ storage});
+    const upload = multer({ storage });
 
     upload.single('avatar')(req, res, async (err) => {
         if (err) {
